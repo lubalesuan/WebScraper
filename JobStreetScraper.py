@@ -32,26 +32,37 @@ class ScrapeJobStreet:
 					writer.writerow({'job_position':jobPosition, 'skills':skillRow})
 
 
-	def analyzeSkills(self):
-		popularSkillsDict = dict()
+	def countSkills(self):
+		skillDict = dict()
 		with open('jobStreet.csv') as csvfile:
 			reader = csv.DictReader(csvfile)
 			# iterate through csv file rows
 			for row in reader:
 				# iterate through skills
-				for skill in row['skills']:
-					if popularSkillsDict.has_key(skill):
+				skillArray = row['skills'].split(",")
+				for skill in skillArray:
+					if skillDict.has_key(skill):
 						# increment count of skills
-						popularSkillsDict[skill] +=1
+						skillDict[skill] +=1
 					else:
 						# if doesn't contain key, init count to 1
-						popularSkillsDict[skill] = 1
-		for i in popularSkillsDict:
-			print i, popularSkillsDict[i]
+						skillDict[skill] = 1
+		return skillDict
 
+	def getPopularSkills(self, n=1, skillDict=None):
+		popularSkills = []
+		if skillDict is None:
+			return None
+		sorted_by_value = sorted(skillDict.items(), key=lambda kv: kv[1])[::-1]
+		for i in range(0,n):
+			popularSkills.append(sorted_by_value[i])
+		return popularSkills
 
 scraper = ScrapeJobStreet()
-scraper.getSkillText()
-scraper.analyzeSkills()
-
+# scraper.getSkillText()
+skillDict = scraper.countSkills()
+sortedSkills = scraper.getPopularSkills(len(skillDict), skillDict)
+resultFile = open('jobStreetSorted.txt','w')
+for i in sortedSkills:
+	resultFile.write(str(i)+"\n")
 

@@ -5,9 +5,10 @@ from string import ascii_lowercase
 
 class ScrapeJobStreet:
 
+	# getting all job skills for Malaysia
 	def getSkillText(self):
 		# init write to file
-		csvFile = open('jobStreet.csv','w')
+		csvFile = open('data/jobStreet.csv','w')
 		fieldnames = ['job_position', 'skills']
 		writer = csv.DictWriter(csvFile, fieldnames = fieldnames)
 		writer.writeheader()
@@ -31,10 +32,9 @@ class ScrapeJobStreet:
 					skillRow = ",".join([skill.text for skill in skills])
 					writer.writerow({'job_position':jobPosition, 'skills':skillRow})
 
-
 	def countSkills(self):
 		skillDict = dict()
-		with open('jobStreet.csv') as csvfile:
+		with open('data/jobStreet.csv') as csvfile:
 			reader = csv.DictReader(csvfile)
 			# iterate through csv file rows
 			for row in reader:
@@ -62,7 +62,9 @@ scraper = ScrapeJobStreet()
 # scraper.getSkillText()
 skillDict = scraper.countSkills()
 sortedSkills = scraper.getPopularSkills(len(skillDict), skillDict)
-resultFile = open('jobStreetSorted.txt','w')
+resultFile = open('data/jobStreetSorted.csv','w')
+resultFieldnames = ["skill", "count"]
+resultWriter =  csv.DictWriter(resultFile, fieldnames = resultFieldnames)
 for i in sortedSkills:
-	resultFile.write(str(i)+"\n")
+	resultWriter.writerow({"skill":i[0],"count":i[1]})
 

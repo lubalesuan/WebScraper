@@ -8,9 +8,9 @@ from numpy.linalg import norm
 class IndeedScraper:
 
 	# getting all job descriptions from Malaysia
-	def getSkillText(self):
+	def getSkillText(self, outputFilename):
 		# init write to file
-		csvFile = open('data/indeedRawMY.csv','w')
+		csvFile = open(outputFilename,'w')
 		fieldnames = ['job_position', 'job_description']
 		writer = csv.DictWriter(csvFile, fieldnames = fieldnames)
 
@@ -50,7 +50,7 @@ class IndeedScraper:
 
 	# remove noise
 	def preprocessData(self, doc):
-		acceptPartsOfSpeech = ["PROPN", "VERB", "NOUN", "ADJ", "ADV"]
+		acceptPartsOfSpeech = ["PROPN", "VERB", "NOUN", "ADJ"]
 		#  remove stop words, short words, and unacceptable parts of speech
 		preprocessedTokens = [token for token in doc if ((not token.is_stop) & ((token.pos_ in acceptPartsOfSpeech) & (len(token.string) > 3)))]
 		return preprocessedTokens
@@ -65,7 +65,7 @@ class IndeedScraper:
 	# using spacy default similarity function
 	# will change to pca later
 	def vectorSimilarity(self, tokens, outputFilename, nlp):
-		keywords = [nlp(u'job skills'), nlp(u'job qualifications')]
+		keywords = [nlp(u'job skills'), nlp(u'job requirements'), nlp(u'job qualifications')]
 		tokenDict = dict()
 		for token in tokens:
 			avegSim = 0
@@ -75,16 +75,26 @@ class IndeedScraper:
 			if (not tokenDict.has_key(token.lemma_.lower())):
 				tokenDict[token.lemma_.lower()] = avegSim/(len(keywords))
 		sorted_by_value = sorted(tokenDict.items(), key=lambda kv: kv[1])[::-1]
-		with open(outputFilename, "w") as outputFile:
-			for token in sorted_by_value:
-				outputFile.write(str(token)+"\n")
+		# with open(outputFilename, "w") as outputFile:
+		# 	for token in sorted_by_value:
+		# 		outputFile.write(str(token)+"\n")
+		fieldnames = ['keyword', 'similarity_score']
+		outputFile = open(outputFilename, "w")
+		writer = csv.DictWriter(outputFile, fieldnames = fieldnames)
+		for token in sorted_by_value:
+			writer.writerow({'keyword': token[0], 'similarity_score': token[1] })
 
 scraper = IndeedScraper()
 # scraper.getSkillText()
 nlp = spacy.load('en_core_web_lg')
-tokenized = scraper.tokenize("data/indeedRawMY0.csv", nlp)
-# print tokenized
-preprocessed = scraper.preprocessData(tokenized)
-# print preprocessed
-jobRelatedTokens = scraper.vectorSimilarity(preprocessed, "data/indeedTokens.txt", nlp)
+# tokenized = scraper.tokenize("data/indeedRawMY0.csv", nlp)
+# # print tokenized
+# preprocessed = scraper.preprocessData(tokenized)
+# # print preprocessed
+# jobRelatedTokens = scraper.vectorSimilarity(preprocessed, "data/indeedKeywordsMY0.csv", nlp)
+for i in range (0,3):
+	tokenized = scraper.tokenize("data/indeedRawMY"+str(i)+".csv", nlp)
+	preprocessed = scraper.preprocessData(tokenized)
+	scraper.vectorSimilarity(preprocessed, "data/indeedKeywordsMY"+str(i)+".csv", nlp)
+
 

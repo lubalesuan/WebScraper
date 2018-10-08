@@ -2,10 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 import csv
 import spacy
-from Data import Data
 from numpy import dot
 from numpy.linalg import norm
-import bisect
 
 class IndeedScraper:
 
@@ -42,19 +40,17 @@ class IndeedScraper:
 				jobDescription = ""
 				if jobPageSoup.find(class_="jobsearch-JobComponent-description"):
 					jobDescription = unicode(jobPageSoup.find(class_="jobsearch-JobComponent-description").get_text().encode("utf-8"), errors='ignore')
-				# print jobDescription
 				# insert data in csv file
 				writer.writerow({'job_position':jobPosition,'job_description':jobDescription})
 
 	# tokenize data
-	def tokenize(self, fileName, outputFilename, nlp):
+	def tokenize(self, fileName, nlp):
 		doc = nlp(unicode(open(fileName).read().decode('utf8')))
-		# with open(outputFilename, "w") as outputFile:
 		return doc
 
 	# remove noise
 	def preprocessData(self, doc):
-		acceptPartsOfSpeech = ["PROPN", "VERB", "NOUN"]
+		acceptPartsOfSpeech = ["PROPN", "VERB", "NOUN", "ADJ", "ADV"]
 		#  remove stop words, short words, and unacceptable parts of speech
 		preprocessedTokens = [token for token in doc if ((not token.is_stop) & ((token.pos_ in acceptPartsOfSpeech) & (len(token.string) > 3)))]
 		return preprocessedTokens
@@ -69,13 +65,12 @@ class IndeedScraper:
 	# using spacy default similarity function
 	# will change to pca later
 	def vectorSimilarity(self, tokens, outputFilename, nlp):
-		keywords = [nlp(u'skill'), nlp(u'job'), nlp(u'requirement'), nlp(u'qualification')]
+		keywords = [nlp(u'job skills'), nlp(u'job qualifications')]
 		tokenDict = dict()
 		for token in tokens:
 			avegSim = 0
 			for key in keywords:
 				avegSim+=token.similarity(key)
-				# TODO make sure not same root
 			# divide to cal aveg similarity score
 			if (not tokenDict.has_key(token.lemma_.lower())):
 				tokenDict[token.lemma_.lower()] = avegSim/(len(keywords))
@@ -87,7 +82,7 @@ class IndeedScraper:
 scraper = IndeedScraper()
 # scraper.getSkillText()
 nlp = spacy.load('en_core_web_lg')
-tokenized = scraper.tokenize("data/indeedRawMY0.csv","data/indeedTokens.txt", nlp)
+tokenized = scraper.tokenize("data/indeedRawMY0.csv", nlp)
 # print tokenized
 preprocessed = scraper.preprocessData(tokenized)
 # print preprocessed

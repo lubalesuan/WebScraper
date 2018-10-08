@@ -26,3 +26,5 @@ __IndeedRaw.csv:__
 
 list of job positions and their job descriptions
 
+#### Resources and tutorials used:
+NLP made easy using spacy: https://www.analyticsvidhya.com/blog/2017/04/natural-language-processing-made-easy-using-spacy-%e2%80%8bin-python/

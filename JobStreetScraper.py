@@ -68,3 +68,4 @@ resultWriter =  csv.DictWriter(resultFile, fieldnames = resultFieldnames)
 for i in sortedSkills:
 	resultWriter.writerow({"skill":i[0],"count":i[1]})
 
+

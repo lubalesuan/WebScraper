@@ -44,8 +44,8 @@ def get_skill_text(output_file):
 	 	# get skills
 	 	skills = get_short_skill(job_soup, "section_Skills")
 	 	
-	 	writer.writerow({'job_position':job_position, 'technology_skills':technology_skills, 
-	 		'knowledge':knowledge, 'skills': skills})
+	 	writer.writerow({'job_position':job_position, 'technology_skills':[technology_skills], 
+	 		'knowledge':[knowledge], 'skills': [skills]})
 
 
 # getting title and description of technological skills

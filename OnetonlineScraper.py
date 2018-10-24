@@ -44,8 +44,9 @@ def get_skill_text(output_file):
 	 	# get skills
 	 	skills = get_short_skill(job_soup, "section_Skills")
 	 	
-	 	writer.writerow({'job_position':job_position, 'technology_skills':[technology_skills], 
-	 		'knowledge':[knowledge], 'skills': [skills]})
+	 	# output skills
+	 	output_skills(writer, job_position, technology_skills, knowledge, skills)
+
 
 
 # getting title and description of technological skills
@@ -56,6 +57,8 @@ def get_technology_skills(job_soup):
 		return technology_skills
 	return []
 
+
+
 # for these skills it is enough to get their title
 def get_short_skill(job_soup, class_name):
 	more_info = get_more_info(job_soup, class_name)
@@ -63,6 +66,8 @@ def get_short_skill(job_soup, class_name):
 		knowledge = [b.text.encode("utf-8") for b in more_info.find_all('b')]
 		return knowledge
 	return []
+
+
 
 # get section text
 def get_more_info(job_soup, class_name):
@@ -74,6 +79,35 @@ def get_more_info(job_soup, class_name):
  			return more_info
  	else:
  		return None
+
+
+
+# print skills to file
+def output_skills(writer, job_position, technology_skills, knowledge, skills):
+	# writing arrays line by line, rather than in 1 row
+ 	max_length = max(len(skills), len(technology_skills), len(knowledge))
+
+	for i in range(0,max_length):
+ 		tech_sk = knowledge_sk = skill_sk = ""
+
+ 		# get skill one by one
+ 		if len(technology_skills)>i:
+ 			tech_skill = technology_skills[i]
+ 		if len(skills)>i:
+ 			skill_sk = skills[i]
+ 		if len(knowledge)>i:
+ 			knowledge_sk = knowledge[i]
+
+ 		# print job position on first iteration
+ 		if i == 0:
+ 			writer.writerow({'job_position':job_position, 'technology_skills':tech_sk, 
+ 		'knowledge':knowledge_sk, 'skills': skill_sk})
+ 		# omit printing job position on all other iterations
+ 		else:
+			writer.writerow({'job_position':'','technology_skills': tech_sk, 
+ 		'knowledge': knowledge_sk, 'skills': skill_sk})
+
+
 
 def main(argv):
 	output_file = argv[1]

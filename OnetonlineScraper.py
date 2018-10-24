@@ -14,7 +14,8 @@ def get_skill_text(output_file):
 	writer = csv.DictWriter(csvFile, fieldnames = fieldnames)
 	writer.writeheader()
 
-	career_page = requests.get("https://www.onetonline.org/find/career?c=5&g=Go")
+	# get page that has links to all job pages
+	career_page = requests.get("https://www.onetonline.org/find/career?c=0&g=Go")
 	soup = BeautifulSoup(career_page.content, 'html.parser')
 	
 	# get links to job pages
@@ -53,7 +54,7 @@ def get_skill_text(output_file):
 def get_technology_skills(job_soup):
 	more_info = get_more_info(job_soup, "section_TechnologySkills")
 	if more_info != None:
-		technology_skills = more_info.text.encode("utf-8").replace("\n","").replace("\xe2\x80\x94",";").split(" ; ")
+		technology_skills = more_info.text.encode("utf-8").replace("\n","").replace("\xe2\x80\x94",";").split(";")
 		return technology_skills
 	return []
 

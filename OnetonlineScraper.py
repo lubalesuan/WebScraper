@@ -92,7 +92,7 @@ def output_skills(writer, job_position, technology_skills, knowledge, skills):
 
  		# get skill one by one
  		if len(technology_skills)>i:
- 			tech_skill = technology_skills[i]
+ 			tech_sk = technology_skills[i]
  		if len(skills)>i:
  			skill_sk = skills[i]
  		if len(knowledge)>i:

@@ -1,13 +1,13 @@
 import requests
 from bs4 import BeautifulSoup
 import csv, re
-import spacy, sys
+import sys
 from numpy import dot
 from numpy.linalg import norm
 
 
 # getting all job descriptions from Malaysia
-def get_skill_text(output_file):
+def get_skill_text(source_page, output_file):
 	# init write to file
 	csvFile = open(output_file,'w')
 	fieldnames = ['job_position', 'technology_skills', 'knowledge', 'skills']
@@ -15,7 +15,7 @@ def get_skill_text(output_file):
 	writer.writeheader()
 
 	# get page that has links to all job pages
-	career_page = requests.get("https://www.onetonline.org/find/career?c=0&g=Go")
+	career_page = requests.get(source_page)
 	soup = BeautifulSoup(career_page.content, 'html.parser')
 	
 	# get links to job pages
@@ -28,10 +28,10 @@ def get_skill_text(output_file):
 	# get job page content
 	for code in page_codes:
 		job_page = requests.get(code)
-		if job_page.status_code!=200:
-	 		break
-	 	job_soup = BeautifulSoup(job_page.content, 'html.parser')
-	 	
+		# if job_page.status_code!=200:
+	 # 		break
+		job_soup = BeautifulSoup(job_page.content, 'html.parser')
+
 	 	# get position name
 	 	job_position = job_soup.find(class_="titleb").text
 	 	job_position = re.sub("\d+-\d+\.\d+ - ","",job_position)
@@ -108,11 +108,20 @@ def output_skills(writer, job_position, technology_skills, knowledge, skills):
 			writer.writerow({'job_position':'','technology_skills': tech_sk, 
  		'knowledge': knowledge_sk, 'skills': skill_sk})
 
+# get positions from csv file
+def get_positions(source, dest):
+	with open(source) as csvFile:
+		reader = csv.DictReader(csvFile)
+		pos_list = ""
+		for row in reader:
+			pos_list += row['job_position']+", "
+		print(pos_list)
 
 
 def main(argv):
-	output_file = argv[1]
-	get_skill_text(output_file)
+	output_file = argv[2] #file to which print scraped data
+	source_page = argv[1] #page from which to scrape job positions
+	get_skill_text(source_page, output_file)
 
 
 if __name__ == "__main__":
